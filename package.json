@@ -1,0 +1,36 @@
+{
+  "name": "cub-notification-challenge",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "main": "index.js",
+  "engines": {
+    "node": ">=22",
+    "pnpm": ">=9"
+  },
+  "scripts": {
+    "dev": "ts-node-dev src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "lint": "eslint . --ext .ts",
+    "format": "prettier --write .",
+    "test": "jest --coverage"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@prisma/client": "^6.10.1",
+    "@types/cls-hooked": "^4.3.9",
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.0.4",
+    "cls-hooked": "^4.2.2",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "prisma": "^6.10.1",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.8.3",
+    "uuid": "^11.1.0",
+    "winston": "^3.17.0"
+  }
+}

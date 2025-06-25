@@ -1,0 +1,42 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Channel {
+  sms
+  whatsApp
+}
+
+enum Status {
+  processing
+  rejected
+  sent
+  delivered
+  viewed // WhatsApp only
+}
+
+model Notification {
+  id         String   @id @default(uuid())
+  externalId String   @unique
+  channel    Channel
+  to         String
+  body       String
+  status     Status  @default(processing)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
+
+  @@index([channel])
+  @@index([status])
+  @@index([to])
+}
