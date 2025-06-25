@@ -1,0 +1,110 @@
+{
+  "info": {
+    "name": "Notification API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create Notification",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"externalId\": \"123\",\n  \"channel\": \"sms\",\n  \"to\": \"+1234567890\",\n  \"body\": \"Hello, world!\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/notifications",
+          "host": ["{{base_url}}"],
+          "path": ["notifications"]
+        }
+      }
+    },
+    {
+      "name": "Get Notification by ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/notifications/{{id}}",
+          "host": ["{{base_url}}"],
+          "path": ["notifications", "{{id}}"]
+        }
+      }
+    },
+    {
+      "name": "List Notifications",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/notifications?channel={{channel}}",
+          "host": ["{{base_url}}"],
+          "path": ["notifications"],
+          "query": [
+            { "key": "channel", "value": "{{channel}}" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Update Notification",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"to\": \"+1987654321\",\n  \"body\": \"Updated message\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/notifications/{{id}}",
+          "host": ["{{base_url}}"],
+          "path": ["notifications", "{{id}}"]
+        }
+      }
+    },
+    {
+      "name": "Delete Notification",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/notifications/{{id}}",
+          "host": ["{{base_url}}"],
+          "path": ["notifications", "{{id}}"]
+        }
+      }
+    },
+    {
+      "name": "Handle Webhook",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"timestamp\": \"YYYY-MM-DDThh:mm:ss.SSSZ\",\n  \"event\": \"delivered\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/webhook/{{externalId}}",
+          "host": ["{{base_url}}"],
+          "path": ["webhook", "{{externalId}}"]
+        }
+      }
+    }
+  ]
+}
