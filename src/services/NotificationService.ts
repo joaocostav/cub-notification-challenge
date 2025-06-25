@@ -2,6 +2,7 @@ import { Channel, Notification, Status } from '../models/Notification'
 import { NotificationRepository } from '../repositories/NotificationRepository'
 import { NotificationSdk } from '../sdk/NotificationSdk'
 import { logger } from '../utils/logger'
+import { EventService } from './EventService'
 
 // HTTP‐style errors for controller to map
 export class BadRequestError extends Error {}
@@ -10,9 +11,14 @@ export class NotFoundError extends Error {}
 export class NotificationService {
   private sdk = new NotificationSdk()
   private repository: NotificationRepository
+  private eventService: EventService
 
-  constructor(repository: NotificationRepository) {
+  constructor(
+    repository: NotificationRepository,
+    eventService: EventService
+  ) {
     this.repository = repository
+    this.eventService = eventService
   }
 
   /**
@@ -65,12 +71,29 @@ export class NotificationService {
     logger.info('Sent via SDK, now persisting to DB', { sent })
 
     // persist in our DB
-    return this.repository.create({
+    const created = await this.repository.create({
       externalId: sent.externalId,
       channel: sent.channel,
       to: sent.to,
       body: sent.body,
     })
+
+    // publish event to Kafka at-least-once
+    await this.eventService.publish(
+      'notification-events',
+      {
+        id: created.id,
+        externalId: created.externalId,
+        status: created.status,
+        channel: created.channel,
+        to: created.to,
+        body: created.body,
+        updatedAt: created.updatedAt,
+      },
+      created.id
+    )
+
+    return created
   }
 
   /** Retrieve one by internal ID */
@@ -114,7 +137,7 @@ export class NotificationService {
   ): Promise<Notification> {
     const existing = await this.repository.findById(id)
     if (!existing) throw new NotFoundError(`Notification id=${id} not found`)
-    return this.repository.update(id, data)
+    return this.repository.update(id, existing.updatedAt, data)
   }
 
   /** Delete by ID */

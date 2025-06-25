@@ -67,7 +67,20 @@ Em breve o sistema de notificações suportará novos canais com novos status e 
 Crie uma aplicação servida via Web API utilizando NodeJS/TypeScript que permita o envio, atualização e consulta dos status das notificações e disponibilize através de um repositório do GitHub. A escolha do banco de dados não é relevante para esse projeto, considere utilizar o SQLite por simplicidade.
 
 1. Caso a nossa aplicação fique indisponível por muito tempo, podemos perder eventos de mudança de status. Quais medidas você tomaria para deixar a aplicação mais robusta?
+  ```
+  Para isso existem algumas possibilidades:
+  
+  1 - Disponibilizar a aplicação por meio do kubernetes que irá realizar o balanceamento automatico escalando horizontalmente e criando novas instancias da api caso ela venha a ser utilizada ou caso algum nó caia, e tendo mais de um nó disponível.
+
+  2 - Criar um microserviço enxuto responsável apenas por receber o webhook e publicar a mensagem em um tópico do kafka, idealmente podemos disponibilizar várias instâncias dessa aplicação por meio do kubernetes.
+  ```
 
 2. Precisamos enviar os eventos de mudança de status das notificações para um stream de eventos (e.g. Apache Kafka, Amazon Kinesis Data Streams, etc) para que outras aplicações possam consumí-los. Precisamos garantir que cada evento seja entregue pelo menos uma vez no stream. Como você faria esse processo?
+  ```
+  Basta conectar ao kafka com um transaction e publicar a mensagem após receber o webhook. (lógica implementada)
+  ```
 
 3. Os eventos de mudança de estado podem vir eventualmente fora de ordem, caso o serviço externo de notificações demore para processar. Como você lidaria com isso?
+  ```
+  Como não guardamos o histórico do status e o que interessa é o status mais recente, podemos utilizar o campo updatedAt para comparar com o timestamp da notificação e verificar se ela é anterior ao ultimo pedido, garantindo sempre ficar com o status mais atualizado. (lógica implementada)
+  ```

@@ -35,6 +35,7 @@ export class NotificationRepository {
   /** General update (any subset of fields) */
   async update(
     id: string,
+    expectedUpdatedAt: Date,
     data: Partial<{
       externalId: string
       channel: Channel
@@ -44,7 +45,7 @@ export class NotificationRepository {
     }>
   ): Promise<Notification> {
     return db.notification.update({
-      where: { id },
+      where: { id, updatedAt: expectedUpdatedAt },
       data,
     })
   }
