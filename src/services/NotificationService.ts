@@ -1,4 +1,4 @@
-import { Channel, Notification, Status } from '@prisma/client'
+import { Channel, Notification, Status } from '../models/Notification'
 import { NotificationRepository } from '../repositories/NotificationRepository'
 import { NotificationSdk } from '../sdk/NotificationSdk'
 import { logger } from '../utils/logger'
@@ -75,9 +75,18 @@ export class NotificationService {
 
   /** Retrieve one by internal ID */
   async getById(id: string): Promise<Notification> {
-    const n = await this.repository.findById(id)
-    if (!n) throw new NotFoundError(`Notification id=${id} not found`)
-    return n
+    const notification = await this.repository.findById(id)
+    if (!notification)
+      throw new NotFoundError(`Notification id=${id} not found`)
+    return notification
+  }
+
+  /** Retrieve one by external ID */
+  async getByExternalId(externalId: string): Promise<Notification> {
+    const notification = await this.repository.findByExternalId(externalId)
+    if (!notification)
+      throw new NotFoundError(`Notification externalId=${externalId} not found`)
+    return notification
   }
 
   /** List all or filter by channel */
@@ -96,18 +105,16 @@ export class NotificationService {
   async update(
     id: string,
     data: Partial<{
+      externalId: string
+      channel: Channel
       to: string
       body: string
+      status: Status
     }>
   ): Promise<Notification> {
-    // verify exists
     const existing = await this.repository.findById(id)
     if (!existing) throw new NotFoundError(`Notification id=${id} not found`)
-    // only allow changing `to` and `body`
-    return this.repository.update(id, {
-      ...(data.to ? { to: data.to } : {}),
-      ...(data.body ? { body: data.body } : {}),
-    })
+    return this.repository.update(id, data)
   }
 
   /** Delete by ID */

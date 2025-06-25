@@ -1,21 +1,14 @@
-import { Status } from '@prisma/client'
-import { NotificationRepository } from '../repositories/NotificationRepository'
+import { Status } from '../models/Notification'
 import { BadRequestError, ConflictError, NotFoundError } from '../utils/errors'
 import { logger, setLogContext } from '../utils/logger'
 import { NotificationService } from './NotificationService'
 
 export class WebhookService {
-  private repository: NotificationRepository
   private notificationService: NotificationService
 
-  constructor(
-    repository: NotificationRepository,
-    notificationService: NotificationService
-  ) {
-    this.repository = repository
+  constructor(notificationService: NotificationService) {
     this.notificationService = notificationService
   }
-
 
   /**
    * Processes a single webhook event.
@@ -42,13 +35,14 @@ export class WebhookService {
       throw new BadRequestError(`Unknown event type: ${event}`)
     }
 
-    const notification = await this.repository.findByExternalId(externalId)
+    const notification = await this.notificationService.getByExternalId(
+      externalId
+    )
     if (!notification) {
       logger.error('Webhook payload refers to non-existent notification')
       throw new NotFoundError('Notification not found')
     }
 
-    // 4) out-of-order guard
     if (date < notification.updatedAt) {
       setLogContext('lastUpdated', notification.updatedAt.toISOString())
       logger.info('Webhook ignored: event older than last update')
@@ -57,7 +51,6 @@ export class WebhookService {
 
     const newStatus = event as Status
 
-    // 5) state-machine guard
     if (
       !this.notificationService.canTransition(
         notification.channel,
@@ -72,7 +65,7 @@ export class WebhookService {
 
     setLogContext('fromStatus', notification.status)
     logger.info('Applying webhook status update')
-    const updated = await this.repository.update(notification.id, {
+    const updated = await this.notificationService.update(notification.id, {
       status: newStatus,
     })
 
