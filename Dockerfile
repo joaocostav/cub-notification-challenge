@@ -1,9 +1,16 @@
-from node:20
+FROM node:22
 
 WORKDIR /app
+
 COPY . .
-RUN npm install pnpm
-RUN pnpm install
+RUN rm -rf node_modules
+RUN npm i -g pnpm
+RUN pnpm i
+
+ARG DATABASE_URL="postgresql://postgres:postgrespassword@host.docker.internal:5432/notifications"
+ENV DATABASE_URL=${DATABASE_URL}
+RUN pnpm prisma migrate deploy
+RUN pnpm prisma generate
 
 RUN pnpm build
 EXPOSE 3000

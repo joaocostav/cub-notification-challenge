@@ -10,6 +10,8 @@ services:
       - '5432:5432'
     volumes:
       - db_data:/var/lib/postgresql/data
+    networks:
+      - local
 
   zookeeper:
     container_name: zookeeper
@@ -21,6 +23,8 @@ services:
       - 2181:2181
       - 2888:2888
       - 3888:3888
+    networks:
+      - local
 
   kafka1:
     container_name: kafka1
@@ -34,9 +38,11 @@ services:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_LISTENERS: INTERNAL://:29092,EXTERNAL://:9092
-      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka1:29092,EXTERNAL://localhost:9092
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka1:29092,EXTERNAL://kafka1:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+    networks:
+      - local
 
   kafka2:
     container_name: kafka2
@@ -50,25 +56,29 @@ services:
       KAFKA_BROKER_ID: 2
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_LISTENERS: INTERNAL://:29093,EXTERNAL://:9093
-      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka2:29093,EXTERNAL://localhost:9093
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka2:29093,EXTERNAL://kafka2:9093
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+    networks:
+      - local
 
-  # app:
-  #   container_name: app
-  #   build: .
-  #   command: pnpm dev
-  #   volumes:
-  #     - ./:/usr/src/app
-  #   working_dir: /usr/src/app
-  #   ports:
-  #     - '3000:3000'
-  #   environment:
-  #     DATABASE_URL: 'postgresql://prisma:prisma@postgres:5432/notifications_dev'
-  #     KAFKA_BROKER: 'kafka:9092'
-  #   depends_on:
-  #     - postgres
-  #     - kafka
+  notifications_api:
+    container_name: notifications_api
+    build: .
+    ports:
+      - '3000:3000'
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+      - kafka1
+      - kafka2
+    networks:
+      - local
 
 volumes:
   db_data:
+
+networks:
+  local:
+    driver: bridge

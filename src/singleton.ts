@@ -5,7 +5,7 @@ import { NotificationService } from './services/NotificationService'
 import { WebhookService } from './services/WebhookService'
 import { EventService } from './services/EventService'
 
-const brokers = (process.env.KAFKA_BROKER || 'localhost:9092').split(',')
+const brokers = (process.env.KAFKA_BROKER || 'kafka1:9092').split(',')
 
 export const notificationRepository = new NotificationRepository()
 
