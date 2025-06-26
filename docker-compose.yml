@@ -62,6 +62,7 @@ services:
     networks:
       - local
 
+  # Comment this service out if you want to run the notifications API locally
   notifications_api:
     container_name: notifications_api
     build: .
