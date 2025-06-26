@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kafka-config
+data:
+  KAFKA_BROKER_ID: "{{BROKER_ID}}"       # replaced by StatefulSet index via template
+  KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+  KAFKA_LISTENERS: "PLAINTEXT://:9092"
+  KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka-0.kafka-headless.local:9092"
+  KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+  KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
+  KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: "0"

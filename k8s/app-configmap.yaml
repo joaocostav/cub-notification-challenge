@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  DATABASE_HOST: "postgres"
+  DATABASE_PORT: "5432"
+  DATABASE_NAME: "notifications"
+  KAFKA_BROKER: "kafka-service:9092"
+  KAFKA_WEBHOOK_TOPIC: "webhook-events"
