@@ -6,13 +6,21 @@ import { createLogger, format, transports } from 'winston'
 export const mdc = createNamespace('request')
 
 export function clearLogContext() {
-  mdc.set('context', {})
+  try {
+    mdc.set('context', {})
+  } catch {
+    // no-op if no CLS context is available
+  }
 }
 
 export function setLogContext(key: string, value: any) {
-  const context = (mdc.get('context') as Record<string, any>) || {}
-  context[key] = value
-  mdc.set('context', context)
+  try {
+    const context = (mdc.get('context') as Record<string, any>) || {}
+    context[key] = value
+    mdc.set('context', context)
+  } catch {
+    // no-op if no CLS context is available
+  }
 }
 
 export function requestContextMiddleware(
